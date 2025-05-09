@@ -19,15 +19,16 @@ public class EntryRedisService {
      * redis로 당첨자 수 확인 후 당첨 여분이 남았다면 당첨자 정보에 추가
      * @param request
      */
-    public void entryV1(EntryRequest request) {
+    public boolean entryV1(EntryRequest request) {
         int userId = request.getUserId();
         int eventId = request.getEventId();
 
         if (!tryEntry(userId, eventId)) { // 응모가 불가능한 경우
-            return;
+            return false;
         }
 
         winnerRepository.save(WinnerEntity.toWinnerEntity(userId, eventId));
+        return true;
     }
 
     /**
