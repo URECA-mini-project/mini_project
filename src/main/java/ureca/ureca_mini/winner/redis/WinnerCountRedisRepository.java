@@ -20,10 +20,24 @@ public class WinnerCountRedisRepository {
     }
 
     /**
+     * 사용자가 이미 응모했는지 확인하고 처음이면 저장
+     * @param eventId
+     * @param userId
+     * @return true면 첫 응모, false면 중복
+     */
+    public boolean checkAndAdd(String eventId, String userId) {
+        String key = eventId + "-users";
+        Long added = redisTemplate.opsForSet().add(key, userId);
+
+        return added != null && added == 1;
+    }
+
+    /**
      * 이벤트 삭제
      * @param eventId
      */
     public void deleteByKey(String eventId) {
         redisTemplate.delete(eventId);
+        redisTemplate.delete(eventId + "-users");
     }
 }

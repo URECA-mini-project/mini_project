@@ -20,12 +20,22 @@ public class EntryRedisService {
      * @param request
      */
     public void entryV1(EntryRequest request) {
-        long count = winnerCountRedisRepository.increment(String.valueOf(request.getEventId()));
+        int userId = request.getUserId();
+        int eventId = request.getEventId();
+        String userIdStr = String.valueOf(userId);
+        String eventIdStr = String.valueOf(eventId);
 
-        if (count > 100) {
+        boolean added = winnerCountRedisRepository.checkAndAdd(eventIdStr, userIdStr);
+        if (!added) { // 중복 응모인 경우
+            log.info("User {}는 이미 응모를 완료했습니다.", userIdStr);
             return;
         }
 
-        winnerRepository.save(WinnerEntity.toWinnerEntity(request.getUserId(), request.getEventId()));
+        long count = winnerCountRedisRepository.increment(eventIdStr);
+        if (count > 100) { // 응모가 마감된 경우
+            return;
+        }
+
+        winnerRepository.save(WinnerEntity.toWinnerEntity(userId, eventId));
     }
 }
