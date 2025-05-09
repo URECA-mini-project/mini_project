@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class WinnerCountRedisRepository {
+public class WinnerRedisRepository {
 
     private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%d-count";
     private static final String WINNERS_KEY = "ureca:mini2:events:%d-winners";
@@ -42,6 +42,13 @@ public class WinnerCountRedisRepository {
     public void deleteByKey(String eventId) {
         redisTemplate.delete(genKey(WINNER_COUNT_KEY, eventId));
         redisTemplate.delete(genKey(WINNERS_KEY, eventId));
+    }
+
+    public int countWinner(String eventId) {
+        String key = genKey(WINNER_COUNT_KEY, eventId);
+        String count = redisTemplate.opsForValue().get(key);
+
+        return count != null ? Integer.parseInt(count) : 0;
     }
 
     private String genKey(String format, String eventId) {
