@@ -22,20 +22,32 @@ public class EntryRedisService {
     public void entryV1(EntryRequest request) {
         int userId = request.getUserId();
         int eventId = request.getEventId();
-        String userIdStr = String.valueOf(userId);
-        String eventIdStr = String.valueOf(eventId);
 
-        boolean added = winnerCountRedisRepository.checkAndAdd(eventIdStr, userIdStr);
-        if (!added) { // 중복 응모인 경우
-            log.info("User {}는 이미 응모를 완료했습니다.", userIdStr);
-            return;
-        }
-
-        long count = winnerCountRedisRepository.increment(eventIdStr);
-        if (count > 100) { // 응모가 마감된 경우
+        if (!tryEntry(userId, eventId)) { // 응모가 불가능한 경우
             return;
         }
 
         winnerRepository.save(WinnerEntity.toWinnerEntity(userId, eventId));
+    }
+
+    /**
+     * 응모가 가능한지 확인
+     * @param eventId
+     * @param userId
+     * @return 중복 응모가 아니고 응모 마감이 아니라면 true, 아니면 false
+     */
+    private boolean tryEntry(int userId, int eventId) {
+        boolean added = winnerCountRedisRepository.checkAndAdd(String.valueOf(userId), eventId);
+        if (!added) { // 중복 응모인 경우
+            log.info("User {}는 이미 응모를 완료했습니다.", userId);
+            return false;
+        }
+
+        long count = winnerCountRedisRepository.increment(eventId);
+        if (count > 100) { // 응모 마감인 경우
+            return false;
+        }
+
+        return true;
     }
 }

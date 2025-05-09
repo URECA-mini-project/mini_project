@@ -8,6 +8,9 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class WinnerCountRedisRepository {
 
+    private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%d-count";
+    private static final String WINNERS_KEY = "ureca:mini2:events:%d-winners";
+
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -15,8 +18,8 @@ public class WinnerCountRedisRepository {
      * @param eventId
      * @return
      */
-    public Long increment(String eventId) {
-        return redisTemplate.opsForValue().increment(eventId + "-count");
+    public Long increment(int eventId) {
+        return redisTemplate.opsForValue().increment(genKey(WINNER_COUNT_KEY, eventId));
     }
 
     /**
@@ -25,8 +28,8 @@ public class WinnerCountRedisRepository {
      * @param userId
      * @return true면 첫 응모, false면 중복
      */
-    public boolean checkAndAdd(String eventId, String userId) {
-        String key = eventId + "-users";
+    public boolean checkAndAdd(String userId, int eventId) {
+        String key = genKey(WINNERS_KEY, eventId);
         Long added = redisTemplate.opsForSet().add(key, userId);
 
         return added != null && added == 1;
@@ -36,8 +39,12 @@ public class WinnerCountRedisRepository {
      * 이벤트 삭제
      * @param eventId
      */
-    public void deleteByKey(String eventId) {
-        redisTemplate.delete(eventId);
-        redisTemplate.delete(eventId + "-users");
+    public void deleteByKey(int eventId) {
+        redisTemplate.delete(genKey(WINNER_COUNT_KEY, eventId));
+        redisTemplate.delete(genKey(WINNERS_KEY, eventId));
+    }
+
+    private String genKey(String format, int id) {
+        return String.format(format, id);
     }
 }
