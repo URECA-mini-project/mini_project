@@ -5,6 +5,7 @@ import lombok.*;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Setter
@@ -29,8 +30,11 @@ public class EventEntity {
     @Column
     private String imageUrl;
 
+    @Column
+    private LocalDateTime eventDate;
 
-    public static EventEntity toEventEntity(int id, String title, String content, Timestamp createdAt, String imageUrl){
+
+    public static EventEntity toEventEntity(int id, String title, String content, Timestamp createdAt, String imageUrl, LocalDateTime eventDate){
         EventEntity e = new EventEntity();
 
         e.id = id;
@@ -38,6 +42,7 @@ public class EventEntity {
         e.content = content;
         e.createdAt = createdAt;
         e.imageUrl = imageUrl;
+        e.eventDate = eventDate;
 
         return e;
     }
