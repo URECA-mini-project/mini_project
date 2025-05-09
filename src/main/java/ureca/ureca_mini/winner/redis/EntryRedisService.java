@@ -19,7 +19,7 @@ public class EntryRedisService {
      * redis로 당첨자 수 확인 후 당첨 여분이 남았다면 당첨자 정보에 추가
      * @param request
      */
-    public void entry(EntryRequest request) {
+    public void entryV1(EntryRequest request) {
         long count = winnerCountRedisRepository.increment(String.valueOf(request.getEventId()));
 
         if (count > 100) {

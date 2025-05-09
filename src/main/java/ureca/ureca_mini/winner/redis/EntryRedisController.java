@@ -16,8 +16,8 @@ public class EntryRedisController {
 
     private final EntryRedisService entryRedisService;
 
-    @PostMapping
-    public void applyWinnerV1(@RequestBody EntryRequest request) {
-        entryRedisService.entry(request);
+    @PostMapping("/v1")
+    public void entryV1(@RequestBody EntryRequest request) {
+        entryRedisService.entryV1(request);
     }
 }
