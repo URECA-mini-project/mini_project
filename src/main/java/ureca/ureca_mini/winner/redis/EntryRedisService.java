@@ -38,13 +38,15 @@ public class EntryRedisService {
      * @return 중복 응모가 아니고 응모 마감이 아니라면 true, 아니면 false
      */
     private boolean tryEntry(int userId, int eventId) {
-        boolean added = winnerCountRedisRepository.checkAndAdd(String.valueOf(userId), eventId);
+        String userIdStr = String.valueOf(userId);
+        String eventIdStr = String.valueOf(eventId);
+        boolean added = winnerCountRedisRepository.checkAndAdd(userIdStr, eventIdStr);
         if (!added) { // 중복 응모인 경우
             log.info("User {}는 이미 응모를 완료했습니다.", userId);
             return false;
         }
 
-        long count = winnerCountRedisRepository.increment(eventId);
+        long count = winnerCountRedisRepository.increment(eventIdStr);
         if (count > 100) { // 응모 마감인 경우
             return false;
         }
