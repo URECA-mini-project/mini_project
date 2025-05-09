@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class EntryRequest {
 
-    private Long userId;
-    private Long eventId;
+    private int userId;
+    private int eventId;
 }
