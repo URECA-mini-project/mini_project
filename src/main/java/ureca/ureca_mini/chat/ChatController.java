@@ -22,7 +22,7 @@ public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
-    private final RedisService redisService;
+    private final ChatRedisService redisService;
 
     @MessageMapping("/chat.sendMessage/{eventId}")
     @SendTo("/topic/chatroom/{eventId}")
@@ -56,7 +56,6 @@ public class ChatController {
     public void loadChatHistory(@DestinationVariable("eventId") Integer eventId, Principal principal) {
 
         List<ChatMessageEntity> messages = redisService.getMessageHistory(eventId);
-        System.out.println("불러온 메시지 수: " + messages.size());
 
         messagingTemplate.convertAndSendToUser(
                 principal.getName(), "/queue/history", messages
