@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class WinnerRedisRepository {
 
-    private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%d-count";
-    private static final String WINNERS_KEY = "ureca:mini2:events:%d-winners";
+    private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%s-count";
+    private static final String WINNERS_KEY = "ureca:mini2:events:%s-winners";
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -59,6 +59,10 @@ public class WinnerRedisRepository {
     }
 
     private String genKey(String format, String eventId) {
+        return String.format(format, eventId);
+    }
+
+    private String genKey(String format, int eventId) {
         return String.format(format, eventId);
     }
 }
