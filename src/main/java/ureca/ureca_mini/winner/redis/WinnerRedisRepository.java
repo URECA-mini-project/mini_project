@@ -51,6 +51,13 @@ public class WinnerRedisRepository {
         return count != null ? Integer.parseInt(count) : 0;
     }
 
+    public int countWinner(int eventId) {
+        String key = genKey(WINNER_COUNT_KEY, eventId);
+        String count = redisTemplate.opsForValue().get(key);
+
+        return count != null ? Integer.parseInt(count) : 0;
+    }
+
     private String genKey(String format, String eventId) {
         return String.format(format, eventId);
     }
