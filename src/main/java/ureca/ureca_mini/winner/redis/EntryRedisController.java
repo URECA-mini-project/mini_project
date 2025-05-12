@@ -12,7 +12,7 @@ import ureca.ureca_mini.winner.EntryResponse;
 
 @Slf4j
 @RestController
-@RequestMapping("/entry/redis")
+@RequestMapping("/api/entry/redis")
 @RequiredArgsConstructor
 public class EntryRedisController {
 
