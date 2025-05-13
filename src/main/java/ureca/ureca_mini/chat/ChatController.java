@@ -39,9 +39,7 @@ public class ChatController {
                 userId = principal.getName();
             }
 
-            String username = userRepository.findUsernameByUserId(userId);
-
-            message.setSender(username);
+            message.setSender(userId);
             message.setEventId(eventId);;
             message.setTimestamp(LocalDateTime.now());
 
