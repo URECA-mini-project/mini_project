@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/signup",
                                 "/api/auth/login"
+                                ,"/chat.html",
+                                "/ws-chat/**", "/css/**", "/js/**","/chat/clear/**",
+                                "/event/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

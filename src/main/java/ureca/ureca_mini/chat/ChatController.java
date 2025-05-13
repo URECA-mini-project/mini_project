@@ -22,7 +22,6 @@ import java.util.List;
 public class ChatController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final UserRepository userRepository;
     private final ChatRedisService redisService;
 
     @MessageMapping("/chat.sendMessage/{eventId}")

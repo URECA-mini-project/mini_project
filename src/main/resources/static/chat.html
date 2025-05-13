@@ -2,11 +2,17 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <title>이모티콘 채팅</title>
+    <title>채팅</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <style>
-        #chat-popup { position: fixed; bottom: 80px; right: 30px; width: 320px; height: 420px; display: none; flex-direction: column; background: white; border-radius: 10px; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        #chat-popup {
+          position: fixed; bottom: 80px; right: 30px;
+          width: 320px; height: 420px; display: none;
+          flex-direction: column; background: white;
+          border-radius: 10px; border: 1px solid #ccc;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
         #chat-header { padding: 10px; background: #f2f2f2; font-weight: bold; border-bottom: 1px solid #ddd; }
         #chat-box { flex: 1; overflow-y: scroll; padding: 10px; }
         .chat-message { margin: 5px 0; max-width: 70%; padding: 8px 12px; border-radius: 15px; }
@@ -14,8 +20,16 @@
         .other-message { background-color: #e0e0e0; margin-right: auto; text-align: left; }
         #chat-input-area { display: flex; padding: 10px; border-top: 1px solid #ccc; }
         #message-input { flex: 1; padding: 8px; }
-        #chat-button { position: fixed; bottom: 20px; right: 30px; width: 60px; height: 60px; border-radius: 50%; font-size: 24px; background: #ffeb3b; border: none; cursor: pointer; }
-        #emoji-panel { display: flex; flex-wrap: wrap; padding: 5px; border-top: 1px solid #ccc; max-height: 100px; overflow-y: auto; }
+        #chat-button {
+          position: fixed; bottom: 20px; right: 30px;
+          width: 60px; height: 60px; border-radius: 50%;
+          font-size: 24px; background: #ffeb3b;
+          border: none; cursor: pointer;
+        }
+        #emoji-panel {
+          display: flex; flex-wrap: wrap; padding: 5px;
+          border-top: 1px solid #ccc; max-height: 100px; overflow-y: auto;
+        }
         .emoji { cursor: pointer; font-size: 22px; padding: 5px; }
     </style>
 </head>
@@ -28,7 +42,6 @@
 <div id="chat-popup">
     <div id="chat-header">채팅방</div>
     <div id="chat-box"></div>
-
     <div id="emoji-panel">
         <span class="emoji">😀</span>
         <span class="emoji">😂</span>
@@ -39,9 +52,7 @@
         <span class="emoji">💡</span>
         <span class="emoji">🎉</span>
         <span class="emoji">❤️</span>
-        <!-- 원하는 만큼 추가 가능 -->
     </div>
-
     <div id="chat-input-area">
         <input type="text" id="message-input" placeholder="메시지 입력..." />
         <button onclick="sendMessage()">📩</button>
@@ -49,15 +60,39 @@
 </div>
 
 <script>
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        console.error("❌ JWT 디코딩 실패:", e);
+        return null;
+      }
+    }
+
     let stompClient = null;
-    let currentRoomId = "1";
+    const currentEventId = [[${eventId}]];
     let username = null;
 
+
     document.getElementById("chat-button").onclick = () => {
-      const token = prompt("JWT 토큰)");
-      if (!token) return;
-      username = prompt("닉네임");
-      if (!username) return;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
+      if (!currentEventId) {
+        alert("이벤트 ID가 URL에 포함되어야 합니다. (/event/{eventId})");
+        return;
+      }
+
+      const payload = parseJwt(token);
+      username = payload?.sub || "익명";
 
       document.getElementById("chat-popup").style.display = "flex";
 
@@ -67,7 +102,7 @@
       stompClient.connect(
         { Authorization: 'Bearer ' + token },
         () => {
-          stompClient.subscribe("/topic/chatroom/" + currentRoomId, (message) => {
+          stompClient.subscribe("/topic/chatroom/" + currentEventId, (message) => {
             const msg = JSON.parse(message.body);
             renderMessage(msg);
           });
@@ -79,12 +114,11 @@
 
           stompClient.subscribe("/user/queue/warning", (message) => {
             const warning = JSON.parse(message.body);
-            alert(warning.message); // 팝업 경고
+            alert(warning.message);
           });
 
-
           setTimeout(() => {
-            stompClient.send("/app/chat.loadHistory/" + currentRoomId, {}, currentRoomId);
+            stompClient.send("/app/chat.loadHistory/" + currentEventId, {}, currentEventId);
           }, 200);
         },
         (error) => {
@@ -97,7 +131,7 @@
       const msg = content || document.getElementById("message-input").value.trim();
       if (!msg || !stompClient || !stompClient.connected) return;
 
-      stompClient.send("/app/chat.sendMessage/" + currentRoomId, {}, JSON.stringify({ message: msg }));
+      stompClient.send("/app/chat.sendMessage/" + currentEventId, {}, JSON.stringify({ message: msg }));
       document.getElementById("message-input").value = "";
     }
 
@@ -113,7 +147,6 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // 이모티콘
     document.querySelectorAll(".emoji").forEach(emoji => {
       emoji.addEventListener("click", () => {
         const input = document.getElementById("message-input");
@@ -125,12 +158,9 @@
     setInterval(() => {
       const chatBox = document.getElementById("chat-box");
       const now = new Date();
-
-      <!-- 30초 마다 렌더링 자체에서 10분 지난 메시지 정리 -->
       Array.from(chatBox.children).forEach(div => {
         const timestamp = div.getAttribute("data-timestamp");
         if (!timestamp) return;
-
         const time = new Date(timestamp);
         const diffMinutes = (now - time) / (1000 * 60);
         if (diffMinutes > 10) {
@@ -139,5 +169,6 @@
       });
     }, 30 * 1000);
 </script>
+
 </body>
 </html>
