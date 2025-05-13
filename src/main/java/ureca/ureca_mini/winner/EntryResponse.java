@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class EntryResponse {
 
-    private boolean isSuccess;
+    private boolean success;
 }

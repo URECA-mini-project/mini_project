@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import ureca.ureca_mini.user.repository.UserRepository;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -38,7 +39,7 @@ public class ChatController {
                 userId = principal.getName();
             }
 
-            String username = userRepository.getUsernamebyUserId(userId);
+            String username = userRepository.findUsernameByUserId(userId);
 
             message.setSender(username);
             message.setEventId(eventId);;
