@@ -15,11 +15,6 @@ public class UserController {
 
     private final JoinService joinService;
 
-//    // 로그인 화면
-//    @GetMapping("/")
-//    public String showLoginPage() {
-//        return "login";
-//    }
 
     // 회원가입 화면
     @GetMapping("/signup")
