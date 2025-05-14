@@ -7,12 +7,19 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     <style>
         #chat-popup {
-          position: fixed; bottom: 80px; right: 30px;
-          width: 320px; height: 420px; display: none;
-          flex-direction: column; background: white;
-          border-radius: 10px; border: 1px solid #ccc;
+          position: fixed;
+          bottom: 80px;
+          right: 30px;
+          width: 400px;
+          height: 520px;
+          display: none;
+          flex-direction: column;
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #ccc;
           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
+
         #chat-header { padding: 10px; background: #f2f2f2; font-weight: bold; border-bottom: 1px solid #ddd; }
         #chat-box { flex: 1; overflow-y: scroll; padding: 10px; }
         .chat-message { margin: 5px 0; max-width: 70%; padding: 8px 12px; border-radius: 15px; }
@@ -30,7 +37,63 @@
           display: flex; flex-wrap: wrap; padding: 5px;
           border-top: 1px solid #ccc; max-height: 100px; overflow-y: auto;
         }
+        #chat-box > div {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          margin-bottom: 12px;
+        }
+
         .emoji { cursor: pointer; font-size: 22px; padding: 5px; }
+
+
+        .chat-bubble {
+          display: inline-block;
+          max-width: 70%;
+          padding: 10px 14px;
+          border-radius: 15px;
+          font-size: 0.95rem;
+          line-height: 1.4;
+          white-space: pre-wrap;
+          word-break: break-word;
+          background-color: #f1f0f0;
+        }
+
+        .mine {
+          background-color: #dcf8c6;
+          align-self: flex-end;
+        }
+
+        .other {
+          background-color: #f1f0f0;
+          align-self: flex-start;
+        }
+
+        .sender-name {
+          font-size: 12px;
+          color: #888;
+          margin-bottom: 2px;
+        }
+        .message-text {
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+        .message-time {
+          font-size: 10px;
+          color: #aaa;
+        }
+        .system-message {
+          text-align: center;
+          font-size: 13px;
+          color: #666;
+          background: #f0f0f0;
+          border-radius: 10px;
+          margin: 10px auto;
+          padding: 6px 12px;
+          max-width: 80%;
+        }
+
+
     </style>
 </head>
 <body>
@@ -54,7 +117,7 @@
         <span class="emoji">❤️</span>
     </div>
     <div id="chat-input-area">
-        <input type="text" id="message-input" placeholder="메시지 입력..." />
+        <textarea id="message-input" placeholder="메시지 입력..." rows="2" style="resize:none; font-weight : bold;"></textarea>
         <button onclick="sendMessage()">📩</button>
     </div>
 </div>
@@ -92,7 +155,9 @@
       stompClient = Stomp.over(socket);
 
       stompClient.connect(
-        { Authorization: 'Bearer ' + token },
+        { Authorization: 'Bearer ' + token,
+          eventId: currentEventId
+        },
         () => {
           stompClient.subscribe("/topic/chatroom/" + currentEventId, (message) => {
             const msg = JSON.parse(message.body);
@@ -127,17 +192,53 @@
       document.getElementById("message-input").value = "";
     }
 
+    document.getElementById("message-input").addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault(); // 기본 Enter 줄바꿈 방지
+        sendMessage();
+      }
+    });
+
     function renderMessage(msg) {
       const chatBox = document.getElementById("chat-box");
       const div = document.createElement("div");
-      const isMine = msg.sender === username;
-      div.className = `chat-message ${isMine ? "my-message" : "other-message"}`;
-      div.textContent = isMine ? msg.message : `${msg.sender}: ${msg.message}`;
       div.setAttribute("data-timestamp", msg.timestamp);
+
+      if (msg.sender === "시스템") {
+        div.className = "system-message";
+        div.textContent = msg.message;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return;
+      }
+
+      const isMine = msg.sender === username;
+
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${isMine ? "mine" : "other"}`;
+
+      const sender = document.createElement("div");
+      sender.className = "sender-name";
+      sender.textContent = isMine ? "나" : msg.sender;
+
+      const message = document.createElement("div");
+      message.className = "message-text";
+      message.textContent = msg.message;
+
+      const time = document.createElement("div");
+      time.className = "message-time";
+      time.textContent = new Date(msg.timestamp).toLocaleTimeString();
+
+      bubble.appendChild(sender);
+      bubble.appendChild(message);
+      bubble.appendChild(time);
+      div.appendChild(bubble);
 
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+
 
     document.querySelectorAll(".emoji").forEach(emoji => {
       emoji.addEventListener("click", () => {
