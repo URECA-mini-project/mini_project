@@ -38,6 +38,12 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// spring actuator(부하테스트용)
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// prometheus(부하테스트용)
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {

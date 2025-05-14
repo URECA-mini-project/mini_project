@@ -28,6 +28,72 @@ services:
     networks:
       - backend-net
 
+  # 그라파나
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ureca-mini-grafana
+#    user: "$UID:$GID"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - backend-net
+
+  # 프로메테우스
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ureca-mini-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - backend-net
+
+  # 레디스
+  redis:
+    image: redis:latest
+    container_name: ureca-mini-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  # 레디스 데이터 제공기
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: ureca-mini-redis-exporter
+    restart: always
+    depends_on:
+      - redis
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379 # Redis 컨테이너에 연결 (인증 없음)
+    networks:
+      - backend-net
+
+  # mysql 데이터 제공기
+  # 사용하기 전에 아래 명령어로 mysql에 mysql-exporter용 사용자를 만들어야 함
+  # CREATE USER '사용자 이름'@'%' IDENTIFIED BY '비밀번호';
+  # GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO '사용자 이름'@'%';
+  # 만든 사용자 이름과 비밀번호를 .env 파일의 MYSQL_EXPORTER_USER, MYSQL_EXPORTER_PASSWORD로 설정
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: ureca-mini-mysql-exporter
+    environment:
+      DATA_SOURCE_NAME: ${MYSQL_EXPORTER_USER}:${MYSQL_EXPORTER_PASSWORD}@(mysql:3306)/
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql
+    networks:
+      - backend-net
+
 volumes:
   mysql-data:
 
