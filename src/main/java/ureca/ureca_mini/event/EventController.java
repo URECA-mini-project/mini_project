@@ -22,10 +22,10 @@ public class EventController {
     }
 
     //이벤트 리스트 페이지 view
-    @GetMapping("mainpage")
+    @GetMapping("mainPage")
     public String eventList(Model model) {
         model.addAttribute("eventList", eventService.eventList());
 
-        return "mainpage";
+        return "mainPage";
     }
 }
