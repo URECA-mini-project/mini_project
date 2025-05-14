@@ -25,11 +25,13 @@ public class ChatRedisService {
         if (allMessages == null) return;
 
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(10);
+
         List<ChatMessageEntity> recentMessages = allMessages.stream()
                 .filter(msg -> msg.getTimestamp() != null && msg.getTimestamp().isAfter(cutoff))
                 .collect(Collectors.toList());
 
         redisTemplate.delete(redisKey);
+
         if (!recentMessages.isEmpty()) {
             redisTemplate.opsForList().rightPushAll(redisKey, recentMessages);
         }
@@ -38,13 +40,17 @@ public class ChatRedisService {
 
     public List<ChatMessageEntity> getMessageHistory(Integer eventId) {
         String redisKey = CHAT_KEY_PREFIX + String.valueOf(eventId);
+
         List<ChatMessageEntity> list = redisTemplate.opsForList().range(redisKey, 0, -1);
+
         return list;
     }
 
 
     public void deleteChatHistory(Integer eventId) {
+
         String redisKey = "CHAT:" + String.valueOf(eventId);
+
         redisTemplate.delete(redisKey);
     }
 

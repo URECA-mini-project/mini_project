@@ -60,23 +60,11 @@
 </div>
 
 <script>
-    function parseJwt(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        console.error("❌ JWT 디코딩 실패:", e);
-        return null;
-      }
-    }
+
 
     let stompClient = null;
     const currentEventId = [[${eventId}]];
-    let username = null;
+    let username = [[${username}]];
 
 
     document.getElementById("chat-button").onclick = () => {
@@ -86,13 +74,6 @@
         return;
       }
 
-      if (!currentEventId) {
-        alert("이벤트 ID가 URL에 포함되어야 합니다. (/event/{eventId})");
-        return;
-      }
-
-      const payload = parseJwt(token);
-      username = payload?.sub || "익명";
 
       document.getElementById("chat-popup").style.display = "flex";
 

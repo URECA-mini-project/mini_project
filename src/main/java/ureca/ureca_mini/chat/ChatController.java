@@ -60,10 +60,10 @@ public class ChatController {
         );
     }
 
-    @GetMapping("/chat/clear/{eventId}")
+    @GetMapping("/clear/{eventId}")
     public ResponseEntity<String> clearChat(@PathVariable("eventId") Integer eventId) {
         redisService.deleteChatHistory(eventId);
-        return ResponseEntity.ok("Redis 채팅 기록 삭제 - roomId: " + eventId);
+        return ResponseEntity.ok("Redis 채팅 기록 삭제 : " + eventId);
     }
 }
 
