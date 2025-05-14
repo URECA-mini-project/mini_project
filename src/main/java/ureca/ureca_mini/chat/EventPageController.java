@@ -11,9 +11,7 @@ import java.security.Principal;
 public class EventPageController {
 
     @GetMapping("/event/{eventId}")
-    public String loadChatPage(@PathVariable("eventId") int eventId, Model model, Principal principal) {
-        model.addAttribute("eventId", eventId);
-        model.addAttribute("username", principal.getName());
+    public String loadChatPage() {
         return "chat";
     }
 }

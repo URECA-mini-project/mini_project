@@ -60,21 +60,32 @@
 </div>
 
 <script>
+    // JWT에서 사용자 이름 추출
+    function parseJwt(token) {
+      try {
+        const base64Payload = token.split('.')[1];
+        return JSON.parse(atob(base64Payload));
+      } catch (e) {
+        return null;
+      }
+    }
 
+    const token = localStorage.getItem("token");
+    const decoded = parseJwt(token);
+    const username = decoded?.sub;
+
+    if (!token || !username) {
+      alert("로그인이 필요합니다.");
+      window.location.href = "/login"; // 로그인 페이지로 리다이렉트 (필요 시)
+    }
+
+    // URL에서 eventId 추출
+    const urlParts = window.location.pathname.split("/");
+    const currentEventId = urlParts[urlParts.length - 1];
 
     let stompClient = null;
-    const currentEventId = [[${eventId}]];
-    let username = [[${username}]];
-
 
     document.getElementById("chat-button").onclick = () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
-
-
       document.getElementById("chat-popup").style.display = "flex";
 
       const socket = new SockJS("/ws-chat");
@@ -136,6 +147,7 @@
       });
     });
 
+    // 10분 지나면 자동 제거
     setInterval(() => {
       const chatBox = document.getElementById("chat-box");
       const now = new Date();
@@ -150,6 +162,7 @@
       });
     }, 30 * 1000);
 </script>
+
 
 </body>
 </html>

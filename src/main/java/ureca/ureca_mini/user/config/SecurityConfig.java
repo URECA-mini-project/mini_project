@@ -1,5 +1,6 @@
 package ureca.ureca_mini.user.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -65,18 +66,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
+
+                // ↓ 요기만 위 변경 내용으로 바꿔 주세요 ↓
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/", "/index.html", "/favicon.ico", "/manifest.json",
+                                "/static/**",
                                 "/api/auth/signup",
                                 "/api/auth/login"
                                 ,"/chat.html",
                                 "/ws-chat/**", "/css/**", "/js/**","/chat/clear/**",
-                                "/event/**",
-                                "/**","/"
+                                "/event/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // 빈으로 분리해 둔 필터를 호출만 한다
+
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sm ->

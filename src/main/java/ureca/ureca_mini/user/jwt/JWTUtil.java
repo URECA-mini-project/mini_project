@@ -21,11 +21,6 @@ public class JWTUtil {
 
     // 토큰에서 subject(username) 반환
     public String getUsername(String token) {
-        if ("test1".equals(token)) {
-            return "testuser";
-        } else if ("test2".equals(token)) {
-            return "testuser2";
-        }
 
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -37,9 +32,6 @@ public class JWTUtil {
 
     // 만료 여부 확인
     public boolean isExpired(String token) {
-        if ("test1".equals(token) || "test2".equals(token)) {
-            return false; // 무조건 유효한 것으로 처리
-        }
 
         Date exp = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
