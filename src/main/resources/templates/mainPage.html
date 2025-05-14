@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EVENT</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          background-color: #fff;
+          padding-top: 50px;
+        }
+
+        h1 {
+          font-size: 2em;
+          font-weight: bold;
+          margin-bottom: 40px;
+        }
+
+        .event-banner {
+          display: block;
+          margin: 20px auto;
+          width: 80%;
+          max-width: 600px;
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          transition: transform 0.2s ease;
+        }
+
+        .event-banner:hover {
+          transform: scale(1.03);
+        }
+
+        .event-banner img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+    </style>
+</head>
+<body>
+<h1>EVENT</h1>
+
+<div th:each="event : ${events}">
+    <a th:href="@{'/eventDetail?event=' + ${event.name}}" class="event-banner">
+        <img th:src="${event.imageUrl}" th:alt="${event.name}" />
+    </a>
+</div>
+
+</body>
+</html>
