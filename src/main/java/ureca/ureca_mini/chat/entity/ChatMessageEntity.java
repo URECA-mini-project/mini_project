@@ -1,4 +1,4 @@
-package ureca.ureca_mini.chat;
+package ureca.ureca_mini.chat.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
