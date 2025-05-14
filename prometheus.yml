@@ -1,0 +1,18 @@
+# 프로메테우스가 수집할 데이터
+scrape_configs:
+  # 애플리케이션 서버(jvm, 메모리 사용량 등)
+  - job_name: 'spring-app'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 2s
+    static_configs:
+      - targets: ['ureca-spring-boot:8080']
+
+  # redis-exporter(redis 관련)
+  - job_name: redis-exporter
+    static_configs:
+      - targets: [ 'ureca-mini-redis-exporter:9121' ]
+
+  # mysql-exporter(mysql 관련)
+  - job_name: 'mysql-exporter'
+    static_configs:
+      - targets: [ 'ureca-mini-mysql-exporter:9104' ]
