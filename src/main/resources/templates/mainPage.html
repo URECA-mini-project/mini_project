@@ -52,13 +52,15 @@
             color: black;
             cursor: pointer;
         }
+
+        a:visited { color:black; }
     </style>
 </head>
 <body>
 <h1>EVENT</h1>
 
 <div class="event-chunsik" th:each="event : ${eventList}">
-    <span th:text="${event.title}"> dddd </span>
+    <a style="text-decoration: none; " th:text="${event.title}" th:href="'eventDetail/'+${event.id}"></a>
 </div>
 
 
