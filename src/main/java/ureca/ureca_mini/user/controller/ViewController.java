@@ -9,6 +9,7 @@ public class ViewController {
     // React 앱의 index.html 을 서빙
     @GetMapping({"/", "/login", "/signup"})
     public String forwardRoot() {
-        return "forward:/index.html";
+        //return "forward:/index.html";
+        return "login";
     }
 }

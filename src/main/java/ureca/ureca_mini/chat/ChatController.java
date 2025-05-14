@@ -26,7 +26,7 @@ public class ChatController {
 
     @MessageMapping("/chat.sendMessage/{eventId}")
     @SendTo("/topic/chatroom/{eventId}")
-    public void sendMessage(@Payload ChatMessageEntity message,
+    public ChatMessageEntity sendMessage(@Payload ChatMessageEntity message,
                             @DestinationVariable("eventId") Integer eventId,
                             Principal principal) {
         String userId = "null";
@@ -37,16 +37,20 @@ public class ChatController {
             } else if (principal != null) {
                 userId = principal.getName();
             }
+            //System.out.println(userId); t
 
             message.setSender(userId);
             message.setEventId(eventId);;
             message.setTimestamp(LocalDateTime.now());
+            //System.out.println(message); t
 
             redisService.saveMessage(eventId, message);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
+
+        return message;
     }
 
 
