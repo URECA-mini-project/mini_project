@@ -71,7 +71,8 @@ public class SecurityConfig {
                                 "/api/auth/login"
                                 ,"/chat.html",
                                 "/ws-chat/**", "/css/**", "/js/**","/chat/clear/**",
-                                "/event/**"
+                                "/event/**",
+                                "/**","/"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
