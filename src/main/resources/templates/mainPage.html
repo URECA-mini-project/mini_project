@@ -37,16 +37,30 @@
           height: auto;
           display: block;
         }
+
+        .event-chunsik {
+            display: inline-block;
+            background-color: #f7e26b; /* 연노랑 */
+            width: 60%;
+            margin: 0 auto;
+            padding: 15px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: black;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 <h1>EVENT</h1>
 
-<div th:each="event : ${events}">
-    <a th:href="@{'/eventDetail?event=' + ${event.name}}" class="event-banner">
-        <img th:src="${event.imageUrl}" th:alt="${event.name}" />
-    </a>
+<div class="event-chunsik" th:each="event : ${eventList}">
+    <span th:text="${event.title}"> dddd </span>
 </div>
+
 
 </body>
 </html>
