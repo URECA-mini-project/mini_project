@@ -24,7 +24,7 @@ public class UserController {
     @PostMapping("/signup")
     public String processSignup(@ModelAttribute("joinDTO") JoinDTO joinDTO, Model model) {
         if (joinService.isEmailDuplicate(joinDTO.getEmail())) {
-            model.addAttribute("error", "이미 가입된 이메일입니다.");
+            model.addAttribute("errorMessage", "이미 가입된 이메일입니다.");
             return "signup";
         }
         joinService.join(joinDTO);

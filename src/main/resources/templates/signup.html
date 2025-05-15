@@ -11,8 +11,11 @@
     <div class="form-box">
         <h2>Sign up</h2>
 
-        <div th:if="${errorMessage}" style="color: red; margin-bottom: 12px;">
-            <p th:text="${errorMessage}"></p>
+        <!-- 🔔 팝업으로 에러 메시지 띄우기 -->
+        <div th:if="${errorMessage}">
+            <script th:inline="javascript">
+                alert([[${errorMessage}]]);
+            </script>
         </div>
 
         <form th:action="@{/signup}" th:object="${joinDTO}" method="post">
@@ -32,10 +35,6 @@
             </div>
             <button type="submit" class="primary">CREATE AN ACCOUNT</button>
         </form>
-        <div class="alt">OR</div>
-        <a th:href="${location}">
-            <img class="kakao-btn" th:src="@{/static/images/kakao_login_medium_narrow.png}" alt="Kakao Login" />
-        </a>
     </div>
 </div>
 </body>

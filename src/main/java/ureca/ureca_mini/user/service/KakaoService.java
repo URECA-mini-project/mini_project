@@ -120,4 +120,8 @@ public class KakaoService {
         String username = "kakao_" + kakaoId;
         return jwtUtil.createJwt(username, 10L * 60 * 60 * 1000);
     }
+
+    public boolean isEmailAlreadyRegistered(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

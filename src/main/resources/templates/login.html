@@ -10,6 +10,12 @@
     <div class="form-background"></div>
     <div class="form-box">
         <h2>Account Log In</h2>
+        <!-- 🔔 에러 메시지를 팝업으로 띄움 -->
+        <div th:if="${errorMessage}">
+            <script th:inline="javascript">
+                alert([[${errorMessage}]]);
+            </script>
+        </div>
         <p class="subtitle">PLEASE LOGIN TO CONTINUE TO YOUR ACCOUNT</p>
         <form th:action="@{/api/auth/login}" method="post">
             <input type="text" name="email" placeholder="Email" required />
