@@ -87,13 +87,6 @@ public class EntryRedisService {
         return true;
     }
 
-    private void saveToMysql(int eventId) {
-        Set<String> users = winnerRedisRepository.getValueRange(eventId, 0, LIMIT - 1);
-        System.out.println("users 수 = " + users.size());
-        winnerRepository.saveAll(users.stream().map(userId
-                -> WinnerEntity.toWinnerEntity(Integer.parseInt(userId), eventId)).toList());
-    }
-
     private boolean tryEntryByBulkInsert(int userId, int eventId) {
         String userIdStr = String.valueOf(userId);
         String eventIdStr = String.valueOf(eventId);
@@ -105,7 +98,7 @@ public class EntryRedisService {
 
         long count = winnerRedisRepository.increment(eventIdStr); // winner count 업데이트
         if (count == LIMIT) { // LIMIT명이 모집된 경우
-//            saveToMysqlByBulkInsert(eventId);
+//            saveToMysqlByBulkInsert(eventId); // 이벤트 종료 후 mysql에 저장한다는 가정 때문에 비활성화
             return true;
         }
 
@@ -116,6 +109,14 @@ public class EntryRedisService {
         return true;
     }
 
+    private void saveToMysql(int eventId) {
+        Set<String> users = winnerRedisRepository.getValueRange(eventId, 0, LIMIT - 1);
+        System.out.println("users 수 = " + users.size());
+        winnerRepository.saveAll(users.stream().map(userId
+                -> WinnerEntity.toWinnerEntity(Integer.parseInt(userId), eventId)).toList());
+    }
+
+    // 이벤트 종료 후 mysql에 저장한다는 가정 때문에 비활성화
     private void saveToMysqlByBulkInsert(int eventId) {
         Set<String> users = winnerRedisRepository.getValueRange(eventId, 0, LIMIT - 1);
         winnerJdbcRepository.entryBulkInsert(users, eventId);
