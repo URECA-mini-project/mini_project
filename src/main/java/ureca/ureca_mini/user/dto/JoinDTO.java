@@ -16,4 +16,14 @@ public class JoinDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
+    private String confirmPassword;
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
 }

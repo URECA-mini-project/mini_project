@@ -18,11 +18,10 @@ public class JoinServiceImpl implements JoinService {
     private final BCryptPasswordEncoder passwordEncoder;    // ① 추가
     private final List<UserValidator> validators;
 
-    /** 이메일·유저네임 중복 검사 */
+
     @Override
-    public boolean isDuplicate(JoinDTO dto) {
-        return userRepository.existsByEmail(dto.getEmail())
-                || userRepository.existsByUsername(dto.getUsername());
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
     /** 회원가입 처리 */
@@ -30,6 +29,11 @@ public class JoinServiceImpl implements JoinService {
     public UserEntity join(JoinDTO dto) {
         // 1) 검증
         validators.forEach(v -> v.validate(dto));
+
+        // 이메일 중복 체크
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("중복된 이메일이 있습니다!");
+        }
 
         // 2) DTO → Entity 변환
         UserEntity user = UserEntity.builder()
@@ -43,4 +47,5 @@ public class JoinServiceImpl implements JoinService {
         // 3) 저장 및 반환
         return userRepository.save(user);
     }
+
 }
