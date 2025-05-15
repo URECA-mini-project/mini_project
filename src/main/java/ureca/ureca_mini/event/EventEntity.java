@@ -44,6 +44,7 @@ public class EventEntity {
         e.imageUrl = imageUrl;
         e.eventDate = eventDate;
 
+
         return e;
     }
 }
