@@ -23,4 +23,10 @@ public class EntryRedisController {
         boolean isSuccess = entryRedisService.entryV1(request);
         return ResponseEntity.ok(new EntryResponse(isSuccess));
     }
+
+    @PostMapping("/v2")
+    public ResponseEntity<EntryResponse> entryV2(@RequestBody EntryRequest request) {
+        boolean isSuccess = entryRedisService.entryV2(request);
+        return ResponseEntity.ok(new EntryResponse(isSuccess));
+    }
 }

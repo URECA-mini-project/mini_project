@@ -63,7 +63,7 @@ public class EntryRedisServiceTest {
 
         Thread.sleep(10000);
 
-        int redisCount = winnerRedisRepository.countWinner(1);
+        int redisCount = winnerRedisRepository.countWinnerByEventId(1);
         int mysqlCount = winnerRepository.countByEventId(1);
         Assertions.assertEquals(threadCount, redisCount);
         Assertions.assertEquals(100, mysqlCount);
