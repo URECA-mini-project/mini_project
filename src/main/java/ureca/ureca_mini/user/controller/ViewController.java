@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    // React 앱의 index.html 을 서빙
-    @GetMapping({"/", "/login", "/signup"})
+    @GetMapping("/")
     public String forwardRoot() {
-        return "forward:/index.html";
+        return "redirect:/login/page";
     }
 }

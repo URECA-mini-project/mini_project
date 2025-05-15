@@ -7,8 +7,7 @@ import ureca.ureca_mini.user.entity.UserEntity;
 
 public interface JoinService {
 
-    // 이메일·유저네임 중복 검사
-    boolean isDuplicate(JoinDTO dto);
+    boolean isEmailDuplicate(String email);
 
     // 회원가입 처리 후 저장된 UserEntity 반환
     UserEntity join(JoinDTO dto);

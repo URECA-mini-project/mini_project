@@ -34,7 +34,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             // UsernamePasswordAuthenticationToken 생성하여 인증 시도
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
-                            creds.getUsername(),
+                            creds.getEmail(),
                             creds.getPassword()
                     );
             return authenticationManager.authenticate(authToken);
@@ -70,7 +70,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Data
     private static class LoginRequest {
-        private String username;
+        private String email;
         private String password;
     }
 }

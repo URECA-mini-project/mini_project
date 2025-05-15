@@ -15,27 +15,19 @@ public class UserController {
 
     private final JoinService joinService;
 
-
-    // 회원가입 화면
     @GetMapping("/signup")
     public String showSignupPage(Model model) {
         model.addAttribute("joinDTO", new JoinDTO());
         return "signup";
     }
 
-    // 회원가입 처리
     @PostMapping("/signup")
-    public String processSignup(
-            @ModelAttribute("joinDTO") JoinDTO joinDTO,
-            Model model
-    ) {
-        // 중복 검사
-        if (joinService.isDuplicate(joinDTO)) {
-            model.addAttribute("error", "Email 또는 Username이 이미 사용 중입니다.");
+    public String processSignup(@ModelAttribute("joinDTO") JoinDTO joinDTO, Model model) {
+        if (joinService.isEmailDuplicate(joinDTO.getEmail())) {
+            model.addAttribute("error", "이미 가입된 이메일입니다.");
             return "signup";
         }
-
         joinService.join(joinDTO);
-        return "redirect:/";
+        return "redirect:/login/page";
     }
 }
