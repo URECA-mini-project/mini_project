@@ -13,7 +13,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class JoinServiceImpl implements JoinService {
-
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;    // ① 추가
     private final List<UserValidator> validators;
@@ -42,8 +41,8 @@ public class JoinServiceImpl implements JoinService {
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .phoneNumber(dto.getPhoneNumber())
                 .birthday(dto.getBirthday())
+                .provider("local")
                 .build();
-
         // 3) 저장 및 반환
         return userRepository.save(user);
     }

@@ -1,6 +1,7 @@
 package ureca.ureca_mini.user.service;
 
 import io.netty.handler.codec.http.HttpHeaderValues;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,11 @@ import ureca.ureca_mini.user.dto.KakaoUserInfoResponseDto;
 import ureca.ureca_mini.user.entity.UserEntity;
 import ureca.ureca_mini.user.jwt.JWTUtil;
 import ureca.ureca_mini.user.repository.UserRepository;
+import java.util.UUID;
+
 
 import java.time.LocalDateTime;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,19 +45,16 @@ public class KakaoService {
     private static final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
     public String getAccessTokenFromKakao(String code) {
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
         params.add("redirect_uri", redirectUri);
         params.add("code", code);
         params.add("client_secret", clientSecret);
-
         log.info("🔥 Kakao 요청 파라미터 확인");
         log.info("client_id = {}", clientId);
         log.info("redirect_uri = {}", redirectUri);
         log.info("code = {}", code);
-
         KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create()
                 .post()
                 .uri("https://kauth.kakao.com/oauth/token")
@@ -64,7 +65,6 @@ public class KakaoService {
                 .onStatus(HttpStatusCode::is5xxServerError, res -> Mono.error(new RuntimeException("Server Error")))
                 .bodyToMono(KakaoTokenResponseDto.class)
                 .block();
-
         log.info("access_token = {}", kakaoTokenResponseDto.getAccessToken());
         return kakaoTokenResponseDto.getAccessToken();
     }
@@ -75,7 +75,6 @@ public class KakaoService {
     }
 
     public KakaoUserInfoResponseDto getUserInfo(String accessToken) {
-
         KakaoUserInfoResponseDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -89,16 +88,15 @@ public class KakaoService {
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
                 .bodyToMono(KakaoUserInfoResponseDto.class)
                 .block();
-
         log.info("[ Kakao Service ] Auth ID ---> {} ", userInfo.getId());
         log.info("[ Kakao Service ] NickName ---> {} ", userInfo.getKakaoAccount().getProfile().getNickName());
         log.info("[ Kakao Service ] ProfileImageUrl ---> {} ", userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
-
         return userInfo;
     }
 
-    public void processKakaoLogin(KakaoUserInfoResponseDto userInfo) {
-        String email = userInfo.getKakaoAccount().getEmail();
+    @Transactional
+    public UserEntity processKakaoLogin(KakaoUserInfoResponseDto userInfo) {
+        String email    = userInfo.getKakaoAccount().getEmail();
         String username = "kakao_" + userInfo.getId();
 
         if (userRepository.existsByEmail(email)) {
@@ -107,14 +105,15 @@ public class KakaoService {
 
         UserEntity user = UserEntity.builder()
                 .username(username)
-                .email(userInfo.getKakaoAccount().getEmail())
+                .email(email)
                 .nickname(userInfo.getKakaoAccount().getProfile().getNickName())
-                .password("")
+                // 카카오 로그인 전용이니 랜덤 비밀번호라도 넣어두세요
+                .password(UUID.randomUUID().toString())
                 .kakaoId(userInfo.getId())
-                .createdAt(LocalDateTime.now())
                 .provider("kakao")
                 .build();
-        userRepository.save(user);
+
+        return userRepository.save(user);
     }
 
     public String generateJwtFor(Long kakaoId) {
