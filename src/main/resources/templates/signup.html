@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" th:href="@{/static/css/main.css}">
+</head>
+<body>
+<div class="container">
+    <div class="form-background"></div>
+    <div class="form-box">
+        <h2>Sign up</h2>
+
+        <!-- 🔔 팝업으로 에러 메시지 띄우기 -->
+        <div th:if="${errorMessage}">
+            <script th:inline="javascript">
+                alert([[${errorMessage}]]);
+            </script>
+        </div>
+
+        <form th:action="@{/signup}" th:object="${joinDTO}" method="post">
+            <input type="text" th:field="*{username}" placeholder="ID" required />
+
+            <input type="password" th:field="*{password}" placeholder="Password" required />
+            <input type="password" th:field="*{confirmPassword}" placeholder="Confirm" required />
+
+            <label>Birthday</label>
+            <input type="date" th:field="*{birthday}" placeholder="YYYY-MM-DD" required />
+
+            <input type="tel" th:field="*{phoneNumber}" placeholder="Phone" required />
+            <input type="email" th:field="*{email}" placeholder="Email address" required />
+
+            <div style="margin-bottom:16px;">
+                <label><input type="checkbox" required /> I agree to the Terms of Service and Privacy Policy.</label>
+            </div>
+            <button type="submit" class="primary">CREATE AN ACCOUNT</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
