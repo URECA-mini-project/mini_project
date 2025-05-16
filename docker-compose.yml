@@ -6,19 +6,40 @@ services:
     container_name: mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PA SSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
       - backend-net
 
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   spring-app:
     build: .
     container_name: ureca-spring-boot
     depends_on:
+      - zookeeper
       - mysql
+      - kafka
     ports:
       - "8080:8080"
     environment:
@@ -82,17 +103,18 @@ services:
   # CREATE USER '사용자 이름'@'%' IDENTIFIED BY '비밀번호';
   # GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO '사용자 이름'@'%';
   # 만든 사용자 이름과 비밀번호를 .env 파일의 MYSQL_EXPORTER_USER, MYSQL_EXPORTER_PASSWORD로 설정
-  mysql-exporter:
-    image: prom/mysqld-exporter:latest
-    container_name: ureca-mini-mysql-exporter
-    environment:
-      DATA_SOURCE_NAME: ${MYSQL_EXPORTER_USER}:${MYSQL_EXPORTER_PASSWORD}@(mysql:3306)/
-    ports:
-      - "9104:9104"
-    depends_on:
-      - mysql
-    networks:
-      - backend-net
+#
+#  mysql-exporter:
+#    image: prom/mysqld-exporter:latest
+#    container_name: ureca-mini-mysql-exporter
+#    environment:
+#      DATA_SOURCE_NAME: ${MYSQL_EXPORTER_USER}:${MYSQL_EXPORTER_PASSWORD}@(mysql:3306)/
+#    ports:
+#      - "9104:9104"
+#    depends_on:
+#      - mysql
+#    networks:
+#      - backend-net
 
 volumes:
   mysql-data:
