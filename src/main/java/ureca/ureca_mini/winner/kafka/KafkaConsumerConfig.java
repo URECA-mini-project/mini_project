@@ -24,8 +24,8 @@ public class KafkaConsumerConfig {
         // 패키지 신뢰 오류로 인해 모든 패키지를 신뢰하도록 작성
         deserializer.addTrustedPackages("*");
 
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        //config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        //config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "coupon");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class); // 여기서 계속 직렬화 오류 발생
