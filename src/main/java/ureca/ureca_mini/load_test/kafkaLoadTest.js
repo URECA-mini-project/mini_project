@@ -6,9 +6,9 @@ export const options = {
     scenarios: {
         constant_request_rate: {
             executor: 'constant-arrival-rate',
-            rate: 5, // 10,000개의 요청을 timeUnit동안 (비율)
+            rate: 100, // 10,000개의 요청을 timeUnit동안 (비율)
             timeUnit: '1s',   // 초 단위로 비율 지정
-            duration: '10s',   // 테스트 지속 시간 (5분)
+            duration: '1s',   // 테스트 지속 시간 (5분)
             preAllocatedVUs: 2000, // 미리 할당할 가상 사용자 수
             maxVUs: 4000,      // 필요시 최대 가상 사용자 수
         },
