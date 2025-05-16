@@ -18,15 +18,36 @@ public class EntryRedisController {
 
     private final EntryRedisService entryRedisService;
 
+    /**
+     * 요청마다 mysql에 저장
+     * @param request
+     * @return
+     */
     @PostMapping("/v1")
     public ResponseEntity<EntryResponse> entryV1(@RequestBody EntryRequest request) {
         boolean isSuccess = entryRedisService.entryV1(request);
         return ResponseEntity.ok(new EntryResponse(isSuccess));
     }
 
+    /**
+     * 100명 모였을 때 redis -> spring -> mysql
+     * @param request
+     * @return
+     */
     @PostMapping("/v2")
     public ResponseEntity<EntryResponse> entryV2(@RequestBody EntryRequest request) {
         boolean isSuccess = entryRedisService.entryV2(request);
+        return ResponseEntity.ok(new EntryResponse(isSuccess));
+    }
+
+    /**
+     * 100명 모였을 때 redis -> spring -> mysql(bulk insert)
+     * @param request
+     * @return
+     */
+    @PostMapping("/v3")
+    public ResponseEntity<EntryResponse> entryV3(@RequestBody EntryRequest request) {
+        boolean isSuccess = entryRedisService.entryV3(request);
         return ResponseEntity.ok(new EntryResponse(isSuccess));
     }
 }
