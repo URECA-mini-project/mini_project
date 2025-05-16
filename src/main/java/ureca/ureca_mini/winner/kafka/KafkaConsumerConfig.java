@@ -25,7 +25,8 @@ public class KafkaConsumerConfig {
         deserializer.addTrustedPackages("*");
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "coupon"); //TODO 이자리에 이벤트 번호를 넣어야할 것 같다
+        //config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "coupon");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class); // 여기서 계속 직렬화 오류 발생
 
