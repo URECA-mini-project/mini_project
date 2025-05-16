@@ -18,6 +18,7 @@ public class JWTUtil {
     }
     // 토큰에서 subject(username) 반환
     public String getUsername(String token) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -27,6 +28,7 @@ public class JWTUtil {
     }
     // 만료 여부 확인
     public boolean isExpired(String token) {
+
         Date exp = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
