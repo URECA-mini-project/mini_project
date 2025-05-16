@@ -9,7 +9,7 @@ public interface JoinService {
 
     boolean isEmailDuplicate(String email);
 
-    // 회원가입 처리 후 저장된 UserEntity 반환
+
     UserEntity join(JoinDTO dto);
 
 }

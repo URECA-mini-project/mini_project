@@ -2,34 +2,54 @@ package ureca.ureca_mini.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ureca.ureca_mini.user.dto.KakaoUserInfoResponseDto;
+import ureca.ureca_mini.user.entity.UserEntity;
+import ureca.ureca_mini.user.service.CustomUserDetailsService;
 import ureca.ureca_mini.user.service.KakaoService;
 
-@Slf4j
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("")
+@Slf4j
 public class KakaoLoginController {
 
     private final KakaoService kakaoService;
+    private final CustomUserDetailsService userDetailsService;
 
     @GetMapping("/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code) {
-        log.info("[카카오 콜백] 받은 인가 코드: {}", code);
-        String accessToken = kakaoService.getAccessTokenFromKakao(code);
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
-        kakaoService.processKakaoLogin(userInfo);
+    public String callback(@RequestParam("code") String code,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            log.info("[카카오 콜백] code = {}", code);
 
-        String jwt = kakaoService.generateJwtFor(userInfo.getId());
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-                .body(userInfo);
+
+            String accessToken = kakaoService.getAccessTokenFromKakao(code);
+
+            KakaoUserInfoResponseDto info = kakaoService.getUserInfo(accessToken);
+
+            UserEntity user = kakaoService.processKakaoLogin(info);
+
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            return "redirect:/";
+
+        } catch (RuntimeException e) {
+            log.error("카카오 로그인 실패", e);
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/login/page";
+        }
     }
 }
+

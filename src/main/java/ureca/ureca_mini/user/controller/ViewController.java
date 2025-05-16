@@ -10,4 +10,5 @@ public class ViewController {
     public String forwardRoot() {
         return "redirect:/login/page";
     }
+
 }

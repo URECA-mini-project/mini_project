@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
-    <link rel="stylesheet" th:href="@{/static/css/main.css}">
+    <link rel="stylesheet" href="/main.css"> <!-- CSS 경로 맞춰 적용 -->
 </head>
 <body>
 <div class="container">
@@ -11,18 +11,25 @@
     <div class="form-box">
         <h2>Sign up</h2>
 
-        <div th:if="${errorMessage}" style="color: red; margin-bottom: 12px;">
-            <p th:text="${errorMessage}"></p>
+        <!-- 🔔 팝업으로 에러 메시지 띄우기 -->
+        <div th:if="${errorMessage}">
+            <script th:inline="javascript">
+                alert([[${errorMessage}]]);
+            </script>
         </div>
 
         <form th:action="@{/signup}" th:object="${joinDTO}" method="post">
+            <!-- 이름칸 제거됨 -->
+
+            <!-- ID 입력만 남기고 중복 버튼 제거 -->
             <input type="text" th:field="*{username}" placeholder="ID" required />
 
             <input type="password" th:field="*{password}" placeholder="Password" required />
             <input type="password" th:field="*{confirmPassword}" placeholder="Confirm" required />
 
+            <!-- 생일 입력을 달력으로 변경 -->
             <label>Birthday</label>
-            <input type="date" th:field="*{birthday}" placeholder="YYYY-MM-DD" required />
+            <input type="date" th:field="*{birthday}" required />
 
             <input type="tel" th:field="*{phoneNumber}" placeholder="Phone" required />
             <input type="email" th:field="*{email}" placeholder="Email address" required />
@@ -30,12 +37,11 @@
             <div style="margin-bottom:16px;">
                 <label><input type="checkbox" required /> I agree to the Terms of Service and Privacy Policy.</label>
             </div>
+
             <button type="submit" class="primary">CREATE AN ACCOUNT</button>
         </form>
-        <div class="alt">OR</div>
-        <a th:href="${location}">
-            <img class="kakao-btn" th:src="@{/static/images/kakao_login_medium_narrow.png}" alt="Kakao Login" />
-        </a>
+
+        <!-- OR + 소셜 버튼 제거됨 -->
     </div>
 </div>
 </body>
