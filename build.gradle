@@ -66,6 +66,9 @@ dependencies {
 
 	// prometheus(부하테스트용)
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// jdbctemplate(db 접근 성능 개선)
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 }
 
 tasks.named('test') {

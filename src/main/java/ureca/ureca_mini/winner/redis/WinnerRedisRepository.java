@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
 public class WinnerRedisRepository {
@@ -30,9 +32,9 @@ public class WinnerRedisRepository {
      */
     public boolean checkAndAdd(String userId, String eventId) {
         String key = genKey(WINNERS_KEY, eventId);
-        Long added = redisTemplate.opsForSet().add(key, userId);
+        double score = (double) System.currentTimeMillis(); // 현재 시간 (epoch ms)
 
-        return added != null && added == 1;
+        return Boolean.TRUE.equals(redisTemplate.opsForZSet().add(key, userId, score));
     }
 
     /**
@@ -44,14 +46,14 @@ public class WinnerRedisRepository {
         redisTemplate.delete(genKey(WINNERS_KEY, eventId));
     }
 
-    public int countWinner(String eventId) {
+    public int countWinnerByEventId(String eventId) {
         String key = genKey(WINNER_COUNT_KEY, eventId);
         String count = redisTemplate.opsForValue().get(key);
 
         return count != null ? Integer.parseInt(count) : 0;
     }
 
-    public int countWinner(int eventId) {
+    public int countWinnerByEventId(int eventId) {
         String key = genKey(WINNER_COUNT_KEY, eventId);
         String count = redisTemplate.opsForValue().get(key);
 
@@ -64,5 +66,14 @@ public class WinnerRedisRepository {
 
     private String genKey(String format, int eventId) {
         return String.format(format, eventId);
+    }
+
+    public Set<String> getValue(int eventId) {
+        return redisTemplate.opsForSet().members(genKey(WINNERS_KEY, eventId));
+    }
+
+    public Set<String> getValueRange(int eventId, int start, int end) {
+        String key = genKey(WINNERS_KEY, eventId);
+        return redisTemplate.opsForZSet().range(key, start, end);
     }
 }

@@ -19,7 +19,8 @@ public class KafkaProducerConfig {
     public ProducerFactory<String, Integer> producerFactory() {
         Map<String, Object> config = new HashMap<>();
 
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");          // 브로커 주소
+        //config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");          // 브로커 주소
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class); // Key 직렬화 명시
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class); // Value 직렬화 명시
 
