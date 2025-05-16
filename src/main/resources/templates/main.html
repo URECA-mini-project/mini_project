@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EVENT</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          background-color: #fff;
+          padding-top: 50px;
+        }
+
+        h1 {
+          font-size: 2em;
+          font-weight: bold;
+          margin-bottom: 40px;
+        }
+
+        .event-banner {
+          display: block;
+          margin: 20px auto;
+          width: 80%;
+          max-width: 600px;
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          transition: transform 0.2s ease;
+        }
+
+        .event-banner:hover {
+          transform: scale(1.03);
+        }
+
+        .event-banner img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .event-chunsik {
+            display: inline-block;
+            background-color: #f7e26b; /* 연노랑 */
+            width: 60%;
+            margin: 0 auto;
+            padding: 15px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            color: black;
+            cursor: pointer;
+        }
+
+        a:visited { color:black; }
+    </style>
+</head>
+<body>
+<h1>EVENT</h1>
+
+<script>
+    // JWT 토큰 가져오기
+    const token = localStorage.getItem("jwt");
+
+    // fetch로 이벤트 목록 불러오기
+    fetch("/api/events", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => {
+      if (res.status === 401) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+      }
+      return res.json();
+    })
+    .then(events => {
+      const container = document.getElementById("event-container");
+      events.forEach(event => {
+        const link = document.createElement("a");
+        link.href = `/event/${event.id}`;
+        link.textContent = event.title;
+        link.className = "event-chunsik";
+        container.appendChild(link);
+      });
+    })
+    .catch(err => console.error("이벤트 로딩 실패", err));
+</script>
+</body>
+</html>

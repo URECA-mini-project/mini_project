@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -34,7 +35,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             // UsernamePasswordAuthenticationToken 생성하여 인증 시도
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
-                            creds.getUsername(),
+                            creds.getEmail(),
                             creds.getPassword()
                     );
             return authenticationManager.authenticate(authToken);
@@ -53,7 +54,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 인증 성공 시 JWT 생성하여 Response Header에 추가
         String username = authResult.getName();
         String token = jwtUtil.createJwt(username, 10L * 60 * 60 * 1000);
-        response.addHeader("Authorization", "Bearer " + token);
+        //response.addHeader("Authorization", "Bearer " + token);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"token\":\"Bearer " + token + "\"}");
     }
 
     @Override
@@ -70,7 +75,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Data
     private static class LoginRequest {
-        private String username;
+        private String email;
         private String password;
     }
 }

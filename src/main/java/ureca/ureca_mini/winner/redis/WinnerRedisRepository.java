@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class WinnerCountRedisRepository {
+public class WinnerRedisRepository {
 
-    private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%d-count";
-    private static final String WINNERS_KEY = "ureca:mini2:events:%d-winners";
+    private static final String WINNER_COUNT_KEY = "ureca:mini2:events:%s-count";
+    private static final String WINNERS_KEY = "ureca:mini2:events:%s-winners";
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -18,7 +18,7 @@ public class WinnerCountRedisRepository {
      * @param eventId
      * @return
      */
-    public Long increment(int eventId) {
+    public Long increment(String eventId) {
         return redisTemplate.opsForValue().increment(genKey(WINNER_COUNT_KEY, eventId));
     }
 
@@ -28,7 +28,7 @@ public class WinnerCountRedisRepository {
      * @param userId
      * @return true면 첫 응모, false면 중복
      */
-    public boolean checkAndAdd(String userId, int eventId) {
+    public boolean checkAndAdd(String userId, String eventId) {
         String key = genKey(WINNERS_KEY, eventId);
         Long added = redisTemplate.opsForSet().add(key, userId);
 
@@ -39,12 +39,30 @@ public class WinnerCountRedisRepository {
      * 이벤트 삭제
      * @param eventId
      */
-    public void deleteByKey(int eventId) {
+    public void deleteByKey(String eventId) {
         redisTemplate.delete(genKey(WINNER_COUNT_KEY, eventId));
         redisTemplate.delete(genKey(WINNERS_KEY, eventId));
     }
 
-    private String genKey(String format, int id) {
-        return String.format(format, id);
+    public int countWinner(String eventId) {
+        String key = genKey(WINNER_COUNT_KEY, eventId);
+        String count = redisTemplate.opsForValue().get(key);
+
+        return count != null ? Integer.parseInt(count) : 0;
+    }
+
+    public int countWinner(int eventId) {
+        String key = genKey(WINNER_COUNT_KEY, eventId);
+        String count = redisTemplate.opsForValue().get(key);
+
+        return count != null ? Integer.parseInt(count) : 0;
+    }
+
+    private String genKey(String format, String eventId) {
+        return String.format(format, eventId);
+    }
+
+    private String genKey(String format, int eventId) {
+        return String.format(format, eventId);
     }
 }

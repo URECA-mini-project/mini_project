@@ -12,4 +12,7 @@ public class EventPageController {
     public String loadChatPage() {
         return "chat";
     }
+
+    @GetMapping("/main")
+    public String mainP() {return "main";}
 }

@@ -51,4 +51,13 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
+    public String createRefreshToken(String username, long expiredMs) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
 }

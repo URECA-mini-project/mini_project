@@ -32,6 +32,12 @@ public class EventEntity {
 
     @Column
     private LocalDateTime eventDate;
+    
+    @Column
+    private LocalDateTime endDate;
+
+    @Column
+    private int maxWinner;
 
 
     public static EventEntity toEventEntity(int id, String title, String content, Timestamp createdAt, String imageUrl, LocalDateTime eventDate){

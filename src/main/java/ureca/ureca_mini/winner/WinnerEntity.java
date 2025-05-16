@@ -2,6 +2,7 @@ package ureca.ureca_mini.winner;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Setter
@@ -20,6 +21,8 @@ public class WinnerEntity {
     @Column
     private int eventId;
 
+    @Column
+    private LocalDateTime createdAt;
 
     public static WinnerEntity toWinnerEntity(int userId, int eventId){
         WinnerEntity e = new WinnerEntity();

@@ -16,12 +16,13 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody JoinDTO dto) {
-        // 이메일 또는 사용자명 중복 체크
-        if (joinService.isDuplicate(dto)) {
+        // 이메일 중복 체크만 수행
+        if (joinService.isEmailDuplicate(dto.getEmail())) {
             return ResponseEntity
                     .status(409)
-                    .body("Email or username already in use");
+                    .body("이미 가입된 이메일입니다.");
         }
+
         // 회원 정보 저장
         joinService.join(dto);
         return ResponseEntity.ok("Signup successful");

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko-KR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>채팅</title>
@@ -97,6 +97,21 @@
     </style>
 </head>
 <body>
+<div class="header" style="text-align: center">
+    <h2 th:text="${event.title}"> 춘식이 인형 받기 </h2>
+
+    <div th:text="${event.content}">content content</div>
+    <br><br>
+
+    <img th:src="@{'/' + ${event.imageUrl}}" />
+
+
+    <br>
+    <br>
+
+    <button> 응모하기 </button>
+</div>
+
 
 <!-- 채팅 로고 버튼 -->
 <button id="chat-button">💬</button>
