@@ -13,7 +13,7 @@ import ureca.ureca_mini.winner.WinnerRepository;
 public class EntryRedisService {
 
     private final WinnerRepository winnerRepository;
-    private final WinnerCountRedisRepository winnerCountRedisRepository;
+    private final WinnerRedisRepository winnerRedisRepository;
 
     /**
      * redis로 당첨자 수 확인 후 당첨 여분이 남았다면 당첨자 정보에 추가
@@ -38,13 +38,15 @@ public class EntryRedisService {
      * @return 중복 응모가 아니고 응모 마감이 아니라면 true, 아니면 false
      */
     private boolean tryEntry(int userId, int eventId) {
-        boolean added = winnerCountRedisRepository.checkAndAdd(String.valueOf(userId), eventId);
+        String userIdStr = String.valueOf(userId);
+        String eventIdStr = String.valueOf(eventId);
+        boolean added = winnerRedisRepository.checkAndAdd(userIdStr, eventIdStr);
         if (!added) { // 중복 응모인 경우
             log.info("User {}는 이미 응모를 완료했습니다.", userId);
             return false;
         }
 
-        long count = winnerCountRedisRepository.increment(eventId);
+        long count = winnerRedisRepository.increment(eventIdStr);
         if (count > 100) { // 응모 마감인 경우
             return false;
         }
