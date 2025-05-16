@@ -42,6 +42,7 @@ public class JoinServiceImpl implements JoinService {
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .phoneNumber(dto.getPhoneNumber())
                 .birthday(dto.getBirthday())
+                .provider("local")
                 .build();
 
         // 3) 저장 및 반환

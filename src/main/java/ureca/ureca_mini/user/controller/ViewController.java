@@ -10,4 +10,9 @@ public class ViewController {
     public String forwardRoot() {
         return "redirect:/login/page";
     }
+
+    @GetMapping("/main")
+    public String showMainPage() {
+        return "main"; // templates/main.html
+    }
 }

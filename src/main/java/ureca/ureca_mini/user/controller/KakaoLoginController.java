@@ -32,7 +32,7 @@ public class KakaoLoginController {
 
             kakaoService.processKakaoLogin(userInfo); // 여기서 중복된 이메일이면 예외 발생 가능
 
-            return "redirect:/"; // 로그인 성공 시 홈으로 이동
+            return "redirect:/main"; // 로그인 성공 시 홈으로 이동
 
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

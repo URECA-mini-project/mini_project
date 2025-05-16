@@ -65,6 +65,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throws IOException, ServletException {
         // 인증 실패 시 401 상태 반환
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed");
+
+        response.sendRedirect("/main");
     }
 
     /**
