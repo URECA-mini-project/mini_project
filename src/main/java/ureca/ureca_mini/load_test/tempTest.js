@@ -9,7 +9,7 @@ export const options = {
     scenarios: {
         constant_request_rate: {
             executor: 'constant-arrival-rate',
-            rate: 5, // 10,000개의 요청을 timeUnit동안 (비율)
+            rate: 100, // 10,000개의 요청을 timeUnit동안 (비율)
             timeUnit: '1s',   // 초 단위로 비율 지정
             duration: '1s',   // 테스트 지속 시간 (5분)
             preAllocatedVUs: 2000, // 미리 할당할 가상 사용자 수
@@ -40,7 +40,8 @@ export default function() {
 
     // POST 요청으로 변경하고 payload와 params 추가
     //const res = http.post('http://localhost:8080/api/entry/kafka/v1', payload, params);
-    const res = http.post('http://localhost:8080/api/entry/kafka/temp');
+    //const res = http.post('http://localhost:8080/api/entry/kafka/temp');
+    const res = http.post('http://localhost:8080/api/entry/kafka/savewinnertemp');
 
     // 응답 검증
     check(res, {
