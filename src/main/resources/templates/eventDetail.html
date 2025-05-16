@@ -109,7 +109,7 @@
     <br>
     <br>
 
-    <button> 응모하기 </button>
+    <button id="entryBtn"> 응모하기 </button>
 </div>
 
 
@@ -277,6 +277,30 @@
         }
       });
     }, 30 * 1000);
+</script>
+<script>
+    document.getElementById("eventBtn").addEventListener("click", function () {
+        const urlParts = window.location.pathname.split("/");
+        const currentEventId = urlParts[urlParts.length - 1];
+
+        const requestData = {
+            userId: 1,
+            eventId: parseInt(currentEventId)
+        };
+
+        axios.post("/api/entry/redis/v3", requestData)
+            .then(response => {
+                if (response.data.success) {
+                    alert("응모 성공!");
+                } else {
+                    alert("응모 실패");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("에러 발생");
+            });
+    });
 </script>
 
 
