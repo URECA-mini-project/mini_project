@@ -15,6 +15,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -53,8 +54,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 인증 성공 시 JWT 생성하여 Response Header에 추가
         String username = authResult.getName();
         String token = jwtUtil.createJwt(username, 10L * 60 * 60 * 1000);
-        response.addHeader("Authorization", "Bearer " + token);
-        response.sendRedirect("/main");
+        //response.addHeader("Authorization", "Bearer " + token);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"token\":\"Bearer " + token + "\"}");
     }
 
     @Override

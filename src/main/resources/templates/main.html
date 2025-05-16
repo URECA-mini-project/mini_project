@@ -59,10 +59,35 @@
 <body>
 <h1>EVENT</h1>
 
-<div class="event-chunsik" th:each="event : ${eventList}">
-    <a style="text-decoration: none; " th:text="${event.title}" th:href="'eventDetail/'+${event.id}"></a>
-</div>
+<script>
+    // JWT 토큰 가져오기
+    const token = localStorage.getItem("jwt");
 
-
+    // fetch로 이벤트 목록 불러오기
+    fetch("/api/events", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => {
+      if (res.status === 401) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+      }
+      return res.json();
+    })
+    .then(events => {
+      const container = document.getElementById("event-container");
+      events.forEach(event => {
+        const link = document.createElement("a");
+        link.href = `/event/${event.id}`;
+        link.textContent = event.title;
+        link.className = "event-chunsik";
+        container.appendChild(link);
+      });
+    })
+    .catch(err => console.error("이벤트 로딩 실패", err));
+</script>
 </body>
 </html>
