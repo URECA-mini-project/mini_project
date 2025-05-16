@@ -3,13 +3,19 @@ package ureca.ureca_mini.winner.kafka;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import ureca.ureca_mini.winner.WinnerRepository;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class WinnerService {
     private final WinnerProducer winnerProducer;
+    public final WinnerRepository winnerRepository;
     private final WinnerCountRepository winnerCountRepository;
+
+    public int winnerCount(){
+        return winnerRepository.countByEventId(1);
+    }
 
     // 쿠폰 발급 로직
     //TODO 하드코딩 수정(eventId, userId)
@@ -19,7 +25,7 @@ public class WinnerService {
 
         //redis를 사용한 count
         long count = winnerCountRepository.increment();
-        if(count > 100) return false;
+        if(count > 3000) return false;
 
         // 발급이 가능한 경우 ->  쿠폰 새로 생성(발급)
         // TODO 이벤트, 유저 id 하드코딩 수정. createdAt 필드 추가 후 save 메소드 파라매터 수정 필요
