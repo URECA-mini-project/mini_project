@@ -50,7 +50,7 @@ public class WinnerRedisRepositoryTest {
 
         Thread.sleep(10000);
 
-        int count = winnerCountRedisRepository.countWinner(testEventId);
+        int count = winnerCountRedisRepository.countWinnerByEventId(testEventId);
         Assertions.assertEquals(1000, count);
     }
 }
