@@ -43,4 +43,8 @@ public class UserEntity {
     private String phoneNumber;
 
     private LocalDate birthday;
+
+    @Column(nullable = false, length = 50)
+    private String provider;
+
 }

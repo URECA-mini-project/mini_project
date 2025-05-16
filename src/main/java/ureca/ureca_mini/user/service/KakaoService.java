@@ -112,6 +112,7 @@ public class KakaoService {
                 .password("")
                 .kakaoId(userInfo.getId())
                 .createdAt(LocalDateTime.now())
+                .provider("kakao")
                 .build();
         userRepository.save(user);
     }
