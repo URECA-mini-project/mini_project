@@ -65,5 +65,32 @@
                 });
         });
 </script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+        // 카카오 인가 코드가 있을 때만 동작
+        fetch(`/callback?code=${code}`)
+            .then(res => {
+                if (!res.ok) throw new Error("토큰 응답 실패");
+                return res.json();
+            })
+            .then(data => {
+                const token = data.token;
+                if (token) {
+                    localStorage.setItem("jwt", "Bearer " + token);
+                    window.location.href = "/login/page"; // ✅ 로그인 페이지로 이동
+                } else {
+                    throw new Error("토큰 없음");
+                }
+            })
+            .catch(err => {
+                alert("카카오 로그인 실패: " + err.message);
+                window.location.href = "/login/page";
+            });
+    }
+</script>
+
 </body>
 </html>

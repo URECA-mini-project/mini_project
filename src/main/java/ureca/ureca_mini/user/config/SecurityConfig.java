@@ -51,9 +51,6 @@ public class SecurityConfig {
         return authBuilder.build();
     }
 
-    /**
-     * 정적 리소스 및 파비콘을 Security 필터 체인에서 제외합니다.
-     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web
@@ -78,26 +75,22 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // 뷰 렌더링용 GET 경로
+
                         .requestMatchers(HttpMethod.GET,
                                 "/", "/login", "/login/page", "/signup", "/callback"
                         ).permitAll()
 
-                        // 회원가입·로그인 API용 POST 경로
                         .requestMatchers(HttpMethod.POST,
                                 "/signup",
                                 "/api/auth/**"
                         ).permitAll()
 
-                        // 파비콘 허용
                         .requestMatchers("/favicon.ico").permitAll()
 
-                        // 정적 리소스 허용
                         .requestMatchers(
                                 "/css/**", "/js/**", "/images/**", "/static/**"
                         ).permitAll()
 
-                        // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 // JWT 검증 필터
