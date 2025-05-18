@@ -3,17 +3,19 @@ package ureca.ureca_mini.user.config;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ureca.ureca_mini.user.jwt.JWTFilter;
@@ -26,20 +28,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authConfig;
     private final JWTUtil jwtUtil;
+    private final UserDetailsService customUserDetailsService;
 
-    public SecurityConfig(
-            AuthenticationConfiguration authConfig,
-            JWTUtil jwtUtil
-    ) {
-        this.authConfig = authConfig;
+    public SecurityConfig(JWTUtil jwtUtil, UserDetailsService customUserDetailsService) {
         this.jwtUtil = jwtUtil;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return authConfig.getAuthenticationManager();
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Bean
@@ -48,42 +42,72 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JWTFilter jwtFilter() {
-        return new JWTFilter(jwtUtil);
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder());
+        return authBuilder.build();
+    }
+
+    /**
+     * 정적 리소스 및 파비콘을 Security 필터 체인에서 제외합니다.
+     */
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web
+                .ignoring()
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .requestMatchers("/favicon.ico");
     }
 
     @Bean
-    public LoginFilter loginFilter() throws Exception {
-        AuthenticationManager authManager = authenticationManager();
-        LoginFilter filter = new LoginFilter(authenticationManager(), jwtUtil);
-        filter.setAuthenticationManager(authManager);
-        filter.setFilterProcessesUrl("/api/auth/login");
-        return filter;
-    }
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           AuthenticationManager authManager) throws Exception {
+        // 로그인 처리 필터 설정
+        LoginFilter loginFilter = new LoginFilter(authManager, jwtUtil);
+        loginFilter.setFilterProcessesUrl("/api/auth/login");
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm ->
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/login", "/login/page", "/signup", "/callback", "/oauth2/**",
-                                "/api/auth/**", "/static/**", "/css/**", "/images/**", "/js/**"
+                        // 뷰 렌더링용 GET 경로
+                        .requestMatchers(HttpMethod.GET,
+                                "/", "/login", "/login/page", "/signup", "/callback"
                         ).permitAll()
+
+                        // 회원가입·로그인 API용 POST 경로
+                        .requestMatchers(HttpMethod.POST,
+                                "/signup",
+                                "/api/auth/**"
+                        ).permitAll()
+
+                        // 파비콘 허용
+                        .requestMatchers("/favicon.ico").permitAll()
+
+                        // 정적 리소스 허용
+                        .requestMatchers(
+                                "/css/**", "/js/**", "/images/**", "/static/**"
+                        ).permitAll()
+
+                        // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                // JWT 검증 필터
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                // 로그인 처리 필터
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // 6) CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -93,6 +117,7 @@ public class SecurityConfig {
         cfg.setExposedHeaders(List.of("Authorization"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;

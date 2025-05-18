@@ -97,17 +97,17 @@ public class KakaoService {
         return userInfo;
     }
 
-    public void processKakaoLogin(KakaoUserInfoResponseDto userInfo) {
+    public String processKakaoLogin(KakaoUserInfoResponseDto userInfo) {
+
         String email = userInfo.getKakaoAccount().getEmail();
-        String username = "kakao_" + userInfo.getId();
+
 
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("이미 동일한 이메일로 가입된 로컬 계정이 존재합니다.");
         }
-
         UserEntity user = UserEntity.builder()
-                .username(username)
-                .email(userInfo.getKakaoAccount().getEmail())
+                .username("kakao_" + userInfo.getId())
+                .email(email)
                 .nickname(userInfo.getKakaoAccount().getProfile().getNickName())
                 .password("")
                 .kakaoId(userInfo.getId())
@@ -115,7 +115,10 @@ public class KakaoService {
                 .provider("kakao")
                 .build();
         userRepository.save(user);
+
+        return email;
     }
+
 
     public String generateJwtFor(Long kakaoId) {
         String username = "kakao_" + kakaoId;

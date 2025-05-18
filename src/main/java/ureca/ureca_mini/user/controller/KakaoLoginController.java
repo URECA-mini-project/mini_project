@@ -1,42 +1,57 @@
 package ureca.ureca_mini.user.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ureca.ureca_mini.user.dto.KakaoUserInfoResponseDto;
+import ureca.ureca_mini.user.jwt.JWTUtil;
 import ureca.ureca_mini.user.service.KakaoService;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("")
 public class KakaoLoginController {
 
     private final KakaoService kakaoService;
+    private final JWTUtil jwtUtil;
 
     @GetMapping("/callback")
-    public String callback(@RequestParam("code") String code, RedirectAttributes redirectAttributes) {
+    public void callback(@RequestParam("code") String code,
+                         HttpServletResponse response) throws IOException {
         try {
             log.info("[카카오 콜백] 받은 인가 코드: {}", code);
 
+            // 1) 카카오에서 AccessToken, 사용자 정보 가져오기
             String accessToken = kakaoService.getAccessTokenFromKakao(code);
             KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
 
-            kakaoService.processKakaoLogin(userInfo); // 여기서 중복된 이메일이면 예외 발생 가능
+            // 2) 회원 가입 또는 로그인 처리 (DB 저장 / 조회)
+            String email = kakaoService.processKakaoLogin(userInfo);
 
-            return "redirect:/main"; // 로그인 성공 시 홈으로 이동
+            // 3) JWT 생성 (예: 1시간 유효)
+            String jwt = jwtUtil.createJwt(email, 1000L * 60 * 60);
+
+            // 4) 클라이언트로 스크립트 내려줘서 localStorage에 저장 후 홈('/')으로 리다이렉트
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>");
+            out.println("  localStorage.setItem('jwt', 'Bearer " + jwt + "');");
+            out.println("  location.href = '/';");
+            out.println("</script>");
+            out.flush();
 
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/login/page"; // 에러 시 로그인 페이지로 이동 + 메시지 전달
+            // 실패 시 로그인 페이지로
+            String error = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect("/login/page?error=" + error);
         }
     }
 }

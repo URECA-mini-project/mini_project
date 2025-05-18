@@ -13,8 +13,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ureca.ureca_mini.user.dto.CustomUserDetails;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
@@ -48,26 +50,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult)
-            throws IOException, ServletException {
-        // 인증 성공 시 JWT 생성하여 Response Header에 추가
-        String username = authResult.getName();
-        String token = jwtUtil.createJwt(username, 10L * 60 * 60 * 1000);
-        response.addHeader("Authorization", "Bearer " + token);
+                                            Authentication authResult) throws IOException {
+        CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        response.sendRedirect("/main");
+        // 1) JWT 생성 (예: 1시간)
+        String token = jwtUtil.createJwt(userDetails.getUsername(), 1000L * 60 * 60);
+
+        // 2) 응답 헤더에만 토큰 담기
+        response.setHeader("Authorization", "Bearer " + token);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
+
+
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              AuthenticationException failed)
-            throws IOException, ServletException {
-        // 인증 실패 시 401 상태 반환
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication Failed");
-
-        response.sendRedirect("/main");
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter writer = response.getWriter();
+        writer.println("<script>alert('이메일 또는 비밀번호가 올바르지 않습니다.'); location.href='/login';</script>");
+        writer.flush();
     }
+
 
     /**
      * 내부 DTO: Jackson이 바디를 바인딩할 수 있도록 getter/setter가 있는 형태로 정의
